@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MappingFitness</string>
+    <string name="title_activity_maps">FitMap</string>
+    <string name="activity_on_bicycle">On a bicycle</string>
+    <string name="activity_on_foot">On foot</string>
+    <string name="activity_running">Running</string>
+    <string name="activity_still">Still</string>
+    <string name="activity_tilting">Tilting</string>
+    <string name="activity_unknown">Unknown activity</string>
+    <string name="activity_in_vehicle">In a vehicle</string>
+    <string name="activity_walking">Walking</string>
+</resources>
