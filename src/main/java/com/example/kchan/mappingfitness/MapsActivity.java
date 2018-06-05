@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.DetectedActivity;
@@ -29,14 +30,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,LocationListener {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Toast.makeText(this, "Map is Ready", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, "Map is Ready", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onMapReady: map is ready");
         mMap = googleMap;
 
@@ -55,12 +60,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private static final String TAG = "MapActivity";
-
+    TextView text;
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
-
+    HashMap<Date,HashMap<String,List<LatLng>>> hm = new HashMap<>();
+    HashMap<String,List<LatLng>> hashMap= new HashMap<>();
+    private ArrayList<LatLng> hp;
     //vars
     private Boolean mLocationPermissionsGranted = false;
     private GoogleMap mMap;
@@ -72,6 +79,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     BroadcastReceiver broadcastReceiver;
     String ActivityTT="start";
     float bmap;
+    private Polyline mPolyline;
 
     LocationManager locationManager;
 
@@ -80,6 +88,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         points = new ArrayList<LatLng>();
+        text=(TextView)findViewById(R.id.textView);
 
         startTracking();
         broadcastReceiver = new BroadcastReceiver() {
@@ -114,48 +123,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (type) {
             case DetectedActivity.IN_VEHICLE: {
                 label = getString(R.string.activity_in_vehicle);
-                bmap= BitmapDescriptorFactory.HUE_AZURE;
+              //  bmap= BitmapDescriptorFactory.HUE_AZURE;
                 //  icon = R.drawable.ic_driving;
                 break;
             }
             case DetectedActivity.ON_BICYCLE: {
                 label = getString(R.string.activity_on_bicycle);
-                bmap= BitmapDescriptorFactory.HUE_BLUE;
+              //  bmap= BitmapDescriptorFactory.HUE_BLUE;
                 //   icon = R.drawable.ic_on_bicycle;
                 break;
             }
             case DetectedActivity.ON_FOOT: {
                 label = getString(R.string.activity_on_foot);
-                bmap= BitmapDescriptorFactory.HUE_CYAN;
+              //  bmap= BitmapDescriptorFactory.HUE_CYAN;
                 //   icon = R.drawable.ic_walking;
                 break;
             }
             case DetectedActivity.RUNNING: {
                 label = getString(R.string.activity_running);
-                bmap= BitmapDescriptorFactory.HUE_GREEN;
+              //  bmap= BitmapDescriptorFactory.HUE_GREEN;
                 //  icon = R.drawable.ic_running;
                 break;
             }
             case DetectedActivity.STILL: {
                 label = getString(R.string.activity_still);
-                bmap= BitmapDescriptorFactory.HUE_MAGENTA;
+              //  bmap= BitmapDescriptorFactory.HUE_MAGENTA;
                 break;
             }
             case DetectedActivity.TILTING: {
                 label = getString(R.string.activity_tilting);
-                bmap= BitmapDescriptorFactory.HUE_ORANGE;
+              //  bmap= BitmapDescriptorFactory.HUE_ORANGE;
                 //  icon = R.drawable.ic_tilting;
                 break;
             }
             case DetectedActivity.WALKING: {
                 label = getString(R.string.activity_walking);
-                bmap= BitmapDescriptorFactory.HUE_RED;
+              //  bmap= BitmapDescriptorFactory.HUE_RED;
                 //  icon = R.drawable.ic_walking;
                 break;
             }
             case DetectedActivity.UNKNOWN: {
                 label = getString(R.string.activity_unknown);
-                bmap= BitmapDescriptorFactory.HUE_VIOLET;
+               // bmap= BitmapDescriptorFactory.HUE_VIOLET;
                 break;
             }
         }
@@ -165,9 +174,60 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (confidence > constants.CONFIDENCE) {
             Log.e(TAG, "test");
             ActivityTT=label;
+            switch (type) {
+                case DetectedActivity.IN_VEHICLE: {
+
+                    bmap= BitmapDescriptorFactory.HUE_AZURE;
+                    //  icon = R.drawable.ic_driving;
+                    break;
+                }
+                case DetectedActivity.ON_BICYCLE: {
+
+                    bmap= BitmapDescriptorFactory.HUE_BLUE;
+                    //   icon = R.drawable.ic_on_bicycle;
+                    break;
+                }
+                case DetectedActivity.ON_FOOT: {
+
+                    bmap= BitmapDescriptorFactory.HUE_CYAN;
+                    //   icon = R.drawable.ic_walking;
+                    break;
+                }
+                case DetectedActivity.RUNNING: {
+
+                    bmap= BitmapDescriptorFactory.HUE_GREEN;
+                    //  icon = R.drawable.ic_running;
+                    break;
+                }
+                case DetectedActivity.STILL: {
+
+                    bmap= BitmapDescriptorFactory.HUE_MAGENTA;
+                    break;
+                }
+                case DetectedActivity.TILTING: {
+
+                    bmap= BitmapDescriptorFactory.HUE_ORANGE;
+                    //  icon = R.drawable.ic_tilting;
+                    break;
+                }
+                case DetectedActivity.WALKING: {
+
+                    bmap= BitmapDescriptorFactory.HUE_RED;
+                    //  icon = R.drawable.ic_walking;
+                    break;
+                }
+                case DetectedActivity.UNKNOWN: {
+
+                    bmap= BitmapDescriptorFactory.HUE_VIOLET;
+                    break;
+                }
+            }
             /*txtActivity.setText(label);
             txtConfidence.setText("Confidence: " + confidence);
             *///  imgActivity.setImageResource(icon);
+        }else{
+            ActivityTT=ActivityTT;
+            bmap=bmap;
         }
 
     }
@@ -199,24 +259,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
     @Override
     public void onLocationChanged(Location location) {
-        points.add(new LatLng(location.getLatitude(),location.getLongitude()));
+        if (hashMap.containsKey(ActivityTT)) {
+            List<LatLng> temp= hashMap.get(ActivityTT);
+            temp.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            hashMap.put(ActivityTT,temp);
 
-        Toast.makeText(this, "Current Location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
-        addMarker(location);
+        } else {
+            ArrayList<LatLng> temp=new ArrayList<>();
+            temp.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            hashMap.put(ActivityTT,temp);
 
-    }
+
+        }
+        Log.e("HASH KEY", hashMap.keySet().toString());
+        Log.e("HASH VALUE of"+ActivityTT+" :" ,hashMap.get(ActivityTT).toString());
+      //  Toast.makeText(this,  hashMap.keySet().toString(), Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, hashMap.get(ActivityTT).toString(), Toast.LENGTH_SHORT).show();
+            points.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            showDistance(points);
+           // Toast.makeText(this, "Current Location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+            addMarker(location);
+
+        }
 
     private void addMarker(Location location){
 
         Log.e(TAG,ActivityTT);
-        Toast.makeText(this, ActivityTT, Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, ActivityTT, Toast.LENGTH_SHORT).show();
         marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
                 .title(ActivityTT)
                 .icon(BitmapDescriptorFactory.defaultMarker(bmap)));
     }
 
+    private void showDistance(ArrayList<LatLng> points){
+        Double distance = SphericalUtil.computeLength(points);
+        distance=distance*0.000621371;// converting to miles
 
+        Toast.makeText(this, "Distance covered: "+distance.toString() , Toast.LENGTH_SHORT).show();
+        Log.e("DISTANCE COVERED",distance.toString());
+
+
+    }
     @Override
     public void onProviderDisabled(String provider) {
         Toast.makeText(MapsActivity.this, "Please Enable GPS and Internet", Toast.LENGTH_SHORT).show();
@@ -230,7 +314,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onProviderEnabled(String provider) {
-        Toast.makeText(MapsActivity.this, "GPS and Internet is now Available", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(MapsActivity.this, "GPS and Internet is now Available", Toast.LENGTH_SHORT).show();
 
     }
 

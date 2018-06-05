@@ -168,6 +168,7 @@
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-identity-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.lifecycle:runtime-1.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.firebase:firebase-appindexing-11.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.maps.android:android-maps-utils-0.4.4" level="project" />
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-gass-license-11.8.0" level="project" />
     <orderEntry type="library" name="Gradle: com.google.android.gms:play-services-fido-license-11.8.0" level="project" />
